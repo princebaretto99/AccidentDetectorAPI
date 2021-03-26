@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, request
 import json
 from keras.models import load_model
 from keras.models import Sequential
@@ -12,15 +12,18 @@ import os
 import urllib.request
 
 app = Flask(__name__)
+model = load_model('./models/epochs20.h5')
 
 def url_to_jpg(uri,file_path):
     urllib.request.urlretrieve(uri,file_path)
 
-@app.route('/', methods = ["GET"])
+@app.route('/', methods = ["POST"])
 def predict():
     # load model
-    model = load_model('./models/epochs20.h5')
-    uri = "https://firebasestorage.googleapis.com/v0/b/pacman-73ff5.appspot.com/o/events%2Fa%40g.com%2Fimage0.279252745985788751234?alt=media&token=eed00af5-5563-4458-91bd-a46e30a9fbe5"
+    data = request.get_json()
+    uri = data['imageUrl']
+    print(uri)
+    # uri = "https://firebasestorage.googleapis.com/v0/b/pacman-73ff5.appspot.com/o/events%2Fa%40g.com%2Fimage0.279252745985788751234?alt=media&token=eed00af5-5563-4458-91bd-a46e30a9fbe5"
     
     id = str(uuid.uuid1())
     filename = id+".jpg"
@@ -58,6 +61,8 @@ def predict():
     # print("file deleted")
 
     return response
+
+    # return "hey"
 
 
 if __name__ == '__main__':
